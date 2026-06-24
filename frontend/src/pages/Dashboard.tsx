@@ -3,14 +3,10 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import toast from "react-hot-toast";
 
-interface Project {
-  _id: string;
-  name: string;
-  description: string;
-}
+import { IProject } from "../types/project";
 
 export default function Dashboard() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<IProject[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -105,7 +101,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((p) => (
             <div
-              key={p._id}
+              key={p.id}
               className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition hover:border-indigo-300"
             >
               <h3 className="text-xl font-semibold text-gray-800 mb-1">
@@ -116,13 +112,13 @@ export default function Dashboard() {
               </p>
               <div className="flex justify-between items-center">
                 <button
-                  onClick={() => navigate(`/projects/${p._id}`)}
+                  onClick={() => navigate(`/projects/${p.id}`)}
                   className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
                 >
                   View Tasks →
                 </button>
-                <button onClick={() => deleteProject(p._id)} className="...">
-                  {deletingId === p._id ? "..." : "Delete"}
+                <button onClick={() => deleteProject(p.id)} className="...">
+                  {deletingId === p.id ? "..." : "Delete"}
                 </button>
               </div>
             </div>

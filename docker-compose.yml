@@ -1,26 +1,70 @@
 version: "3.8"
+
 services:
+  # ============ MONGODB ============
   mongo:
-    image: mongo
-    restart: always
+    image: mongo:7
+    container_name: teamboard-mongo
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - teamboard-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============ BACKEND (NestJS) ============
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: teamboard-backend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
+      - NODE_ENV=development
+      - PORT=3000
       - MONGODB_URI=mongodb://mongo:27017/teamboard
-      - JWT_SECRET=SuperSecretKey
+      - JWT_SECRET=SuperSecretKeyForDocker2026
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
+    networks:
+      - teamboard-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  # ============ FRONTEND (React + Vite) ============
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: teamboard-frontend
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:3000
     depends_on:
       - backend
+    networks:
+      - teamboard-network
+    # volumes:
+    #   - ./frontend:/app
+    #   - /app/node_modules
+
+# ============ VOLUMES ============
 volumes:
   mongo-data:
+
+# ============ NETWORKS ============
+networks:
+  teamboard-network:
+    driver: bridge
