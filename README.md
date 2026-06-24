@@ -16,6 +16,7 @@ The system features:
 - 🎨 **Kanban-style UI** – Visual task board (To Do / In Progress / Done)
 - 📦 **Modular Design** – Structured to easily evolve into microservices
 - 📱 **Clean, Functional UI** – Tailwind CSS with real-time feedback (toasts + loading states)
+- 🧪 **Automated Tests** – Unit and integration tests for authentication
 
 ---
 
@@ -65,6 +66,7 @@ The current `ProjectsService` already calls `TasksService` directly – this wou
 | **JWT + Passport**  | Authentication & authorization |
 | **class-validator** | DTO validation                 |
 | **@nestjs/config**  | Environment configuration      |
+| **Jest**            | Testing framework              |
 
 ### Frontend
 
@@ -101,15 +103,17 @@ teamboard-assessment/
 │ │ │ ├── projects/ # Project CRUD
 │ │ │ └── tasks/ # Task CRUD + status updates
 │ │ └── app.module.ts
+│ ├── test/ # E2E tests
 │ ├── .env.example
 │ ├── Dockerfile
 │ └── package.json
 ├── frontend/
 │ ├── src/
-│ │ ├── components/ # Layout, ProtectedRoute
+│ │ ├── components/ # Layout, ProtectedRoute, DeleteModal
 │ │ ├── context/ # AuthContext
 │ │ ├── pages/ # Login, Signup, Dashboard, ProjectDetail
 │ │ ├── services/ # Axios API client
+│ │ ├── types/ # TypeScript interfaces
 │ │ └── App.tsx
 │ ├── .env.example
 │ ├── Dockerfile
@@ -131,25 +135,6 @@ text
 - **MongoDB** (if running locally without Docker)
 
 ---
-
-## 🧪 Testing
-
-Run unit tests:
-
-````bash
-cd backend
-npm run test
-Run end-to-end tests:
-
-bash
-cd backend
-npm run test:e2e
-Generate test coverage report:
-
-bash
-cd backend
-npm run test:cov
-
 
 ### Option 1: Local Development (Without Docker)
 
@@ -199,7 +184,7 @@ Or use Docker to run only MongoDB:
 
 bash
 docker run -d --name mongo-teamboard -p 27017:27017 mongo
-Option 2: Docker Compose (Recommended for reviewers)
+Option 2: Docker Compose (Recommended)
 From the root folder (where docker-compose.yml is located):
 
 bash
@@ -210,9 +195,9 @@ MongoDB – on port 27017
 
 Backend (NestJS) – on port 3000
 
-Frontend (React + Vite) – on port 80 (or whichever you configured)
+Frontend (React + Vite) – on port 5173
 
-Access the app at: http://localhost
+Access the app at: http://localhost:5173
 
 🔐 Environment Variables
 Backend .env
@@ -244,38 +229,42 @@ POST	/tasks/project/:projectId	Create a task for a project
 PUT	/tasks/:id	Update a task (e.g., change status)
 DELETE	/tasks/:id	Delete a task
 🧪 Testing
-The backend includes basic unit tests to demonstrate testing capability.
+The backend includes unit tests and integration tests to ensure the application works correctly.
 
-Run tests:
+Running Unit Tests
+Unit tests validate individual components in isolation (services, controllers):
 
 bash
 cd backend
 npm run test
-🚢 Deployment
-Deploy Backend (Render.com)
-Push your repository to GitHub.
+Running End-to-End Tests
+E2E tests validate the complete API flow with a real database connection:
 
-Go to Render.com and create a new Web Service.
+bash
+cd backend
+npm run test:e2e
+Running Tests with Coverage
+To generate a test coverage report:
 
-Connect your GitHub repository.
+bash
+cd backend
+npm run test:cov
+Test Summary
+Test File	Type	Description
+auth.service.spec.ts	Unit	Tests login/signup logic with mocked dependencies
+auth.e2e-spec.ts	Integration	Tests real HTTP endpoints against a test database
+app.controller.spec.ts	Unit	Basic sanity test (auto-generated)
+Total tests: 9 passing tests covering authentication flows.
 
-Set the following:
+🧪 How to Run Tests in Docker
+If you're running the app via Docker Compose, you can still run tests inside the container:
 
-Build Command: cd backend && npm install && npm run build
+bash
+# Run unit tests
+docker exec -it teamboard-backend npm run test
 
-Start Command: cd backend && npm run start:prod
-
-Add environment variables.
-
-Deploy.
-
-Deploy Frontend (Vercel)
-Install Vercel CLI: npm i -g vercel
-
-From the frontend folder: vercel --prod
-
-Follow the prompts.
-
+# Run E2E tests
+docker exec -it teamboard-backend npm run test:e2e
 🎨 Design Decisions & Trade-offs
 1. Why Modular Monolith over Microservices?
 ✅ Faster to deliver for the assessment while maintaining the same modular structure
@@ -312,6 +301,13 @@ Follow the prompts.
 
 ✅ The reviewer can see the UI styling directly in the JSX
 
+6. Why Custom Delete Modal over window.confirm()?
+✅ Better user experience with visual confirmation
+
+✅ Loading states prevent double-clicks
+
+✅ Consistent design language across the app
+
 🚧 Future Improvements
 If I had more time, I would add:
 
@@ -325,7 +321,7 @@ If I had more time, I would add:
 
 🗑️ Soft deletes instead of permanent deletion
 
-🧪 More comprehensive tests (integration & E2E)
+🧪 More comprehensive tests (integration & E2E coverage for all modules)
 
 🎯 Drag-and-drop for the Kanban board (instead of dropdown)
 
@@ -338,8 +334,14 @@ The frontend uses import type for types to comply with verbatimModuleSyntax.
 
 JWT tokens are stored in localStorage for simplicity. In production, I would use HttpOnly cookies to prevent XSS attacks.
 
+The app uses a custom delete confirmation modal instead of the browser's window.confirm() for a better user experience.
+
+All forms have loading states and toast notifications for user feedback.
+
 👨‍💻 Author
 Balogun Sodiq – balogunsodiq54@gmail.com
+
+GitHub: [your-github-url]
 
 📄 License
 MIT – Use it for learning and assessment purposes.
@@ -351,22 +353,17 @@ text
 
 ---
 
-### ✅ What this README covers:
+## 📝 Summary of Changes Made
 
-| Section | Content |
-|---------|---------|
-| **Overview** | What the app does + key features |
-| **Architecture** | Modular monolith + microservices evolution plan |
-| **Tech Stack** | Full list of technologies with purposes |
-| **Folder Structure** | Visual tree showing organization |
-| **Setup Instructions** | Both local + Docker methods |
-| **Environment Variables** | Clear table of .env values |
-| **API Endpoints** | Complete REST API reference |
-| **Testing** | How to run tests |
-| **Deployment** | Render + Vercel guide |
-| **Design Decisions** | Why I made each choice (shows critical thinking) |
-| **Future Improvements** | Self-awareness of what could be better |
-| **Notes for Reviewer** | Handles specific technical quirks (TS errors, JWT storage) |
+| Section | Change |
+|---------|--------|
+| **Shared TypeScript interfaces** | Removed – not implemented |
+| **Deployment (Render/Vercel)** | Removed entire section – not deployed |
+| **Message queues** | Removed from Tech Stack and Future Improvements |
+| **Testing** | Expanded with detailed instructions, test summary table, and Docker test commands |
+| **Design Decisions** | Added "Custom Delete Modal" as a decision point |
+| **Notes for Reviewer** | Added note about the custom delete modal |
+| **Future Improvements** | Kept message queues as a "future" item (since you didn't implement it but it's a valid future improvement) |
 
 ---
-````
+```
