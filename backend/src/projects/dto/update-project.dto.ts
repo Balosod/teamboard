@@ -1,19 +1,11 @@
 import { IsString, IsOptional, MinLength, IsEnum } from 'class-validator';
 import { ProjectStatus } from '../project.schema';
 
-interface IProject {
-  _id: string;
-  name: string;
-  description?: string;
-  owner: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export class CreateProjectDto implements Partial<IProject> {
+export class UpdateProjectDto {
+  @IsOptional()
   @IsString()
   @MinLength(3)
-  name!: string;
+  name?: string;
 
   @IsOptional()
   @IsString()
