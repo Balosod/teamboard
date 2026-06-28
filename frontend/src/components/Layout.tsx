@@ -11,14 +11,20 @@ export default function Layout() {
       <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-2">
+            {/* Clickable Logo - Redirects to Dashboard */}
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+              title="Go to Dashboard"
+            >
               <span className="text-2xl font-bold text-indigo-600">
                 📋 TeamBoard
               </span>
               <span className="text-sm text-gray-400 hidden sm:inline">
                 | Work Management
               </span>
-            </div>
+            </button>
+
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-gray-700 hidden sm:block">
                 👋 {user?.name || "User"}
