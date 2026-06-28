@@ -141,8 +141,8 @@ text
 #### Step 1: Clone the repository
 
 ```bash
-git clone <your-repo-url>
-cd teamboard-assessment
+git clone https://github.com/Balosod/teamboard.git
+cd teamboard
 Step 2: Setup Backend
 bash
 cd backend

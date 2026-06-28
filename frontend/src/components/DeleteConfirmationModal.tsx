@@ -1,11 +1,4 @@
-interface DeleteConfirmationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title?: string;
-  message?: string;
-  isDeleting?: boolean;
-}
+import { DeleteConfirmationModalProps } from "../interface/DeleteConfirmationModalProps";
 
 export default function DeleteConfirmationModal({
   isOpen,

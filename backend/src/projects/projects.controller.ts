@@ -6,17 +6,35 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { ProjectsService } from './projects.service';
 import { AuthGuard } from '@nestjs/passport';
+import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectStatus } from './project.schema';
 
 @Controller('projects')
 @UseGuards(AuthGuard('jwt'))
 export class ProjectsController {
   constructor(private projectsService: ProjectsService) {}
+
+  // Member endpoints
+  @Get(':id/members')
+  getMembers(@Request() req, @Param('id') id: string) {
+    return this.projectsService.getMembers(id, req.user.userId);
+  }
+
+  @Delete(':id/members/:memberId')
+  removeMember(
+    @Request() req,
+    @Param('id') id: string,
+    @Param('memberId') memberId: string,
+  ) {
+    return this.projectsService.removeMember(id, req.user.userId, memberId);
+  }
 
   @Post()
   create(@Request() req, @Body() dto: CreateProjectDto) {
@@ -24,8 +42,20 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.projectsService.findAll(req.user.userId);
+  findAll(
+    @Request() req,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('status') status?: ProjectStatus,
+  ) {
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    return this.projectsService.findAllPaginated(
+      req.user.userId,
+      pageNumber,
+      limitNumber,
+      status,
+    );
   }
 
   @Get(':id')
@@ -37,14 +67,13 @@ export class ProjectsController {
   update(
     @Request() req,
     @Param('id') id: string,
-    @Body() dto: Partial<CreateProjectDto>,
+    @Body() dto: UpdateProjectDto,
   ) {
     return this.projectsService.update(req.user.userId, id, dto);
   }
 
   @Delete(':id')
   delete(@Request() req, @Param('id') id: string) {
-    console.log('Delete request - userId:', req.user.userId, 'projectId:', id);
     return this.projectsService.delete(req.user.userId, id);
   }
 }

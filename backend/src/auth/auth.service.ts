@@ -6,12 +6,14 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { InvitationsService } from '../invitations/invitations.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private invitationsService: InvitationsService,
   ) {}
 
   async signup(email: string, password: string, name: string) {
@@ -24,6 +26,17 @@ export class AuthService {
       password: hashedPassword,
       name,
     });
+
+    // After successful signup, check for pending invitations
+    // const pendingInvitations =
+    //   await this.invitationsService.getPendingInvitations(email);
+    // for (const inv of pendingInvitations) {
+    //   // Accept the invitation for this user
+    //   await this.invitationsService.acceptInvitation(
+    //     inv.token,
+    //     user._id.toString(),
+    //   );
+    // }
 
     return this.generateToken(user);
   }
@@ -40,6 +53,10 @@ export class AuthService {
 
   private generateToken(user: any) {
     const payload = { sub: user._id, email: user.email };
-    return { access_token: this.jwtService.sign(payload) };
+    return {
+      access_token: this.jwtService.sign(payload),
+      id: user._id,
+      name: user.name,
+    };
   }
 }

@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ProjectDetail from "./pages/ProjectDetail";
+import AcceptInvite from "./pages/AcceptInvite";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ function AppRoutes() {
           }
         />
       </Route>
+      <Route path="/invite/accept" element={<AcceptInvite />} />
     </Routes>
   );
 }
@@ -58,7 +60,6 @@ function App() {
               style: { background: "#333", color: "#fff" },
             }}
           />{" "}
-          {/* <-- ADD THIS */}
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>

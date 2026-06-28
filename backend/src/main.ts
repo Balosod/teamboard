@@ -4,13 +4,14 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
   app.enableCors({
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? 'https://your-frontend-url.com'
-        : 'http://localhost:5173',
+    origin: frontendUrl,
     credentials: true,
   });
-  await app.listen(3000);
+  const port = parseInt(process.env.PORT || '3000', 10);
+  await app.listen(port);
+  console.log(`🚀 Server running on http://localhost:${port}`);
 }
 bootstrap();
